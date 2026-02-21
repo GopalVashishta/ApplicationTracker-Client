@@ -70,8 +70,7 @@ const Register = () => {
       };
       const res = await axios.post(`${serverEndpoint}/auth/google-auth`, body, { withCredentials: true });
       //dispatch({ type: SET_USER, payload: resp.data.user });
-      setMessage("User Registered");
-      setUserDetails(res.data.user);
+      setMessage("User Registered: You can now log in via Google SSO");
     } catch (error) {
       console.log("Error during Google SSO login:", error);
       setErrors({ message: "Google SSO login failed. Please try again." });

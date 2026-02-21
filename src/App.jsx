@@ -10,7 +10,7 @@ import ResetPassword from './pages/ResetPassword';
 import ChangePassword from './pages/ChangePassword';
 import AppLayout from './components/AppLayout';
 
-const serverEndpoint = "http://localhost:5001";
+const serverEndpoint = import.meta.env.VITE_SERVER_ENDPOINT;
 
 function App() {
   const userDetails = useSelector((state) => state.userDetails);
@@ -20,7 +20,7 @@ function App() {
 
   const isUserLoggedIn = async () => {
     try {
-      const resp = await axios.post(
+      const resp = await axios.get(
         `${serverEndpoint}/auth/is-user-logged-in`,
         {},
         { withCredentials: true },

@@ -9,7 +9,7 @@ function Footer() {
 
                         {/* Section 1: Brand/Logo */}
                         <div className="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-                            <h5 className="text-uppercase mb-4 font-weight-bold text-primary">MyMERNApp</h5>
+                            <h5 className="text-uppercase mb-4 font-weight-bold text-warning">JOB<span className="text-white">APP</span>TKR</h5>
                             <p>Building modern full-stack applications with React and Node.js.</p>
                         </div>
 
@@ -24,7 +24,7 @@ function Footer() {
                         {/* Section 3: Contact */}
                         <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                             <h5 className="text-uppercase mb-4 font-weight-bold">Contact</h5>
-                            <p><i className="fas fa-envelope mr-3"></i> support@mernapp.com</p>
+                            <p><i className="fas fa-envelope mr-3"></i> support@jobapptkr.com</p>
                             <p><i className="fas fa-phone mr-3"></i> +91 98765 XXXXX</p>
                         </div>
                     </div>
@@ -35,7 +35,7 @@ function Footer() {
                     <div className="row align-items-center">
                         <div className="col-md-7 col-lg-8">
                             <p>© {new Date().getFullYear()} All Rights Reserved by:
-                                <span className="text-primary" style={{ textDecoration: 'none' }}> **MyMERNApp**</span>
+                                <span className="text-warning" style={{ textDecoration: 'none' }}> **JOBAPPTKR**</span>
                             </p>
                         </div>
                     </div>

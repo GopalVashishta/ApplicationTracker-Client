@@ -85,8 +85,8 @@ const Login = () => {
 
     return (
         <>
-            <div className="container d-flex justify-content-center align-items-center min-vh-100">
-                <div className="card shadow-lg border-0 p-4 p-md-5 rounded-4" style={{ maxWidth: '400px', width: '100%' }}>
+            <div className="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+                <div className="card shadow-lg border-0 p-4 p-md-5 rounded-4" style={{ maxWidth: '450px', width: '100%' }}>
 
                     <div className="text-center mb-4">
                         <h2 className="fw-bold text-dark">Welcome Back</h2>
@@ -104,7 +104,7 @@ const Login = () => {
                                 type="email"
                                 className="form-control rounded-pill px-3 py-2"
                                 placeholder="email@example.com"
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                onChange={handleChange}
                                 required
                                 name='email'
                             />
@@ -117,10 +117,13 @@ const Login = () => {
                                 type="password"
                                 className="form-control rounded-pill px-3 py-2"
                                 placeholder="••••••••"
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                onChange={handleChange}
                                 required
                                 name='password'
                             />
+                            <button type="button" className="btn btn-link p-0 mt-2 small" style={{ textDecoration: 'none' }}>
+                                <Link to="/reset-password" className="text-decoration-none small">Forgot Password?</Link>
+                            </button>
                         </div>
 
                         <button type="submit" className="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm mb-3">

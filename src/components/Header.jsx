@@ -8,8 +8,8 @@ function Header() {
         <>
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3 shadow-sm sticky-top">
                 <div className="container-fluid">
-                    <Link className="navbar-brand fw-bold text-primary" to="/">
-                        My<span className="text-white">MERN</span>App
+                    <Link className="navbar-brand fw-bold text-warning" to="/">
+                        JOB<span className="text-white">APP</span>TKR
                     </Link>
 
                     {/* 2. Update button to use onClick */}
@@ -27,12 +27,12 @@ function Header() {
                             <li className="nav-item">
                                 <Link className="nav-link px-3" to="/" onClick={() => setIsOpen(false)}>Home</Link>
                             </li>
-                            <li className="nav-item">
-                                <Link className="nav-link px-3" to="/login" onClick={() => setIsOpen(false)}>Login</Link>
+                            <li className="nav-item ms-lg-2 mt-2 mt-lg-0 w-100 w-lg-auto">
+                                <Link className="btn btn-warning rounded-pill px-4 w-100" to="/login" onClick={() => setIsOpen(false)}>Login</Link>
                             </li>
                             <li className="nav-item ms-lg-2 mt-2 mt-lg-0 w-100 w-lg-auto">
                                 <Link
-                                    className="btn btn-primary rounded-pill px-4 w-100"
+                                    className="btn btn-warning rounded-pill px-4 w-100"
                                     to="/register"
                                     onClick={() => setIsOpen(false)}
                                 >
