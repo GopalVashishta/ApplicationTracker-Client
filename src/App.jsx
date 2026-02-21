@@ -8,7 +8,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
 import ChangePassword from './pages/ChangePassword';
+import Dashboard from './pages/Dashboard';
+import Projects from './pages/Projects';
 import AppLayout from './components/AppLayout';
+import UserLayout from "./components/UserLayout";
 
 const serverEndpoint = import.meta.env.VITE_SERVER_ENDPOINT;
 
@@ -47,24 +50,29 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/" element={userDetails ?
+          (<Navigate to='/dashboard' />) :
+          (<Navigate to="/home" />)} />
 
-        <Route path="/home" element={
-          <AppLayout>
+        <Route path="/home" element={userDetails ?
+          (<Navigate to='/dashboard' />) :
+          (<AppLayout>
             <Home />
-          </AppLayout>
+          </AppLayout>)
         } />
 
         <Route path="/login" element={
-          <AppLayout>
-            <Login />
-          </AppLayout>
+          userDetails ? (<Navigate to="/dashboard" />) : (
+            <AppLayout>
+              <Login />
+            </AppLayout>)
         } />
 
         <Route path="/register" element={
-          <AppLayout>
-            <Register />
-          </AppLayout>
+          userDetails ? (<Navigate to="/dashboard" />) : (
+            <AppLayout>
+              <Register />
+            </AppLayout>)
         } />
 
         <Route path="/reset-password"
@@ -83,7 +91,27 @@ function App() {
           }
         />
 
-        <Route path="/logout" element={<Navigate to="/home" />} />
+        <Route path="/dashboard" element={
+          userDetails ? (
+            <UserLayout>
+              <Dashboard />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />
+
+        <Route path="/projects" element={
+          userDetails ? (
+            <UserLayout>
+              <Projects />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />  
+
+        <Route path="/logout" element={<Navigate to="/login" />} />
 
         <Route path="*" element={<Navigate to="/home" />} />
 
