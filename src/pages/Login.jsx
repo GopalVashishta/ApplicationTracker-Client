@@ -1,14 +1,86 @@
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useState } from 'react';
 import { Link } from "react-router-dom";
+import axios from 'axios';
+import { useDispatch } from "react-redux";
+import { SET_USER } from "../redux/user/action.js";
+
+const serverEndpoint = import.meta.env.VITE_SERVER_ENDPOINT;
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [errors, setErrors] = useState({});
+    const [message, setMessage] = useState('');
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Logging in with:", formData);
-        // Here is where you would call: axios.post('/api/login', formData)
+    const dispatch = useDispatch();
+
+    const handleChange = (event) => {
+        const name = event.target.name;
+        const value = event.target.value;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const validate = () => {
+        let newErrors = {};
+        let isValid = true;
+        if (formData.email.trim().length === 0) {
+            newErrors.email = "Email is required";
+            isValid = false;
+        }
+
+        if (formData.password.trim().length === 0) {
+            newErrors.password = "Password is required";
+            isValid = false;
+        }
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleFormSubmit = async (event) => {
+        event.preventDefault();//prevent default behaviour i.e.  Page reload
+        if (validate()) {
+            try {
+                const body = {
+                    email: formData.email,
+                    password: formData.password
+                };
+                const config = { withCredentials: true };
+                const res = await axios.post(`${serverEndpoint}/auth/login`, body, config);
+                console.log(res);
+                //setUser(res.data.user);
+                setMessage("User Authenticated");
+                dispatch({ type: SET_USER, payload: res.data.user }); // inform redux about the new userDetails
+
+            } catch (error) {
+                console.log("Error during login:", error);
+                setErrors({ message: error.status === 401 ? "Please log in via Google" : "Login failed. Please try again." });
+            }
+        } else {
+            console.log("Invalid form");
+        }
+    };
+
+    const handleGoogleSuccess = async (authResponse) => {
+        try {
+            const body = {
+                idToken: authResponse?.credential
+            };
+            const res = await axios.post(`${serverEndpoint}/auth/google-auth`, body, { withCredentials: true });
+            dispatch({ type: SET_USER, payload: res.data.user });
+            setMessage("User Authenticated via Google SSO");
+        } catch (error) {
+            console.log("Error during Google SSO login:", error);
+            setErrors({ message: "Google SSO login failed. Please try again." });
+        }
+    };
+
+    const handleGoogleError = (error) => {
+        console.log(error);
+        setErrors({ message: "Something went wrong while performing google single sign-on" });
     };
 
     return (
@@ -21,7 +93,10 @@ const Login = () => {
                         <p className="text-muted small">Login to manage your account</p>
                     </div>
 
-                    <form onSubmit={handleSubmit}>
+                    {message && <div className="alert alert-success">{message}</div>}
+                    {errors.message && <div className="alert alert-danger">{errors.message}</div>}
+
+                    <form onSubmit={handleFormSubmit}>
                         {/* Email Input */}
                         <div className="mb-3">
                             <label className="form-label small fw-bold">Email Address</label>
@@ -31,6 +106,7 @@ const Login = () => {
                                 placeholder="email@example.com"
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 required
+                                name='email'
                             />
                         </div>
 
@@ -43,6 +119,7 @@ const Login = () => {
                                 placeholder="••••••••"
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 required
+                                name='password'
                             />
                         </div>
 
@@ -61,7 +138,7 @@ const Login = () => {
                     <div className="d-flex justify-content-center">
                         <div className="d-flex justify-content-center">
                             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}> {/* Like BrowserRouter in main.jsx */}
-                                <GoogleLogin onSuccess={console.log('googleLogin')} onError={console.log('googleLogin error')} theme='outline' shape='pill' text='signin_with' />
+                                <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} theme='outline' shape='pill' text='signin_with' />
                             </GoogleOAuthProvider>
                         </div>
                     </div>

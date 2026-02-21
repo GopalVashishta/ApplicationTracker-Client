@@ -1,18 +1,22 @@
-import { Navigate, Route, Routes } from "react-router-dom";
 import axios from "axios";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import AppLayout from './components/AppLayout';
 import ResetPassword from './pages/ResetPassword';
 import ChangePassword from './pages/ChangePassword';
+import AppLayout from './components/AppLayout';
 
 const serverEndpoint = "http://localhost:5001";
 
 function App() {
-  const [userDetails, setUserDetails] = useState(null);
+  const userDetails = useSelector((state) => state.userDetails);
   const [loading, setLoading] = useState(true);
+
+  const dispatch = useDispatch();
 
   const isUserLoggedIn = async () => {
     try {
@@ -22,7 +26,7 @@ function App() {
         { withCredentials: true },
       );
       if (resp.status !== 200) throw new Error("User not logged in");
-      setUserDetails(resp.data.user);
+      dispatch({ type: "SET_USER", payload: resp.data.user });
     } catch (error) {
       console.log(error);
     } finally {
@@ -39,6 +43,7 @@ function App() {
       </div>
     );
   }
+
   return (
     <>
       <Routes>
@@ -58,7 +63,7 @@ function App() {
 
         <Route path="/register" element={
           <AppLayout>
-            <Register /> 
+            <Register />
           </AppLayout>
         } />
 
@@ -82,10 +87,9 @@ function App() {
 
         <Route path="*" element={<Navigate to="/home" />} />
 
-
       </Routes>
     </>
   )
 }
 
-export default App
+export default App;
