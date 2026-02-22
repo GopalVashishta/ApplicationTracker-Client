@@ -1,11 +1,12 @@
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useState } from 'react';
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 const serverEndpoint = import.meta.env.VITE_SERVER_ENDPOINT;
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '', fullName: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
@@ -53,10 +54,10 @@ const Register = () => {
         const res = await axios.post(`${serverEndpoint}/auth/register`, body, config);
         console.log(res);
         setMessage("User Registered");
-        Navigate("/login");
+        navigate("/login");
       } catch (error) {
         console.log("Error during registration:", error);
-        setErrors({ message: error.status === 401 ? "Please log in via Google" : "Registration failed. Please try again." });
+        setErrors({ message: error.response?.status === 401 ? "Please log in via Google" : "Registration failed. Please try again." });
       }
     } else {
       console.log("Invalid form");
