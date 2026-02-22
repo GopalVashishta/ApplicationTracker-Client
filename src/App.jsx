@@ -25,7 +25,6 @@ function App() {
     try {
       const resp = await axios.get(
         `${serverEndpoint}/auth/is-user-logged-in`,
-        {},
         { withCredentials: true },
       );
       if (resp.status !== 200) throw new Error("User not logged in");

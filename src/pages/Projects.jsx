@@ -1,41 +1,63 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const serverEndpoint = import.meta.env.VITE_SERVER_ENDPOINT;
 
 const Projects = () => {
-    const [projects, setProjects] = useState([
-        { _id: '1', name: 'JobAppTkr', githubLink: 'https://github.com/user/jobapptkr', createdAt: '2026-01-10' },
-        { _id: '2', name: 'Portfolio Site', githubLink: 'https://github.com/user/portfolio', createdAt: '2026-02-05' },
-        { _id: '3', name: 'Chat App', githubLink: 'https://github.com/user/chat-app', createdAt: '2026-02-18' },
-    ]);
-
-    const [formData, setFormData] = useState({ name: '', githubLink: '' });
+    const [projects, setProjects] = useState([]);
+    const [formData, setFormData] = useState({ name: '', githubLink: '', createdAt: '' });
+    const [message, setMessage] = useState('');
+    const [errors, setErrors] = useState(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const fetchProjects = async () => {
-        // TODO: call GET /api/projects and setProjects(response.data)
+        try {
+            const config = { withCredentials: true };
+            const res = await axios.get(`${serverEndpoint}/appProject/getProjects`, config);
+            setProjects(res.data);
+            setErrors(null);
+        } catch (error) {
+            console.log("Error fetching projects:", error);
+            setErrors({ message: 'Failed to fetch projects. Please try again.' });
+        }
     };
 
     const handleAddProject = async (e) => {
         e.preventDefault();
         if (!formData.name.trim() || !formData.githubLink.trim()) return;
 
-        // TODO: call POST /api/projects with formData
-        // On success, append the new project to state:
-        const newProject = {
-            _id: Date.now().toString(),
-            name: formData.name,
-            githubLink: formData.githubLink,
-            createdAt: new Date().toISOString().split('T')[0],
-        };
-        setProjects((prev) => [...prev, newProject]);
-        setFormData({ name: '', githubLink: '' });
+        try {
+            const body = {
+                name: formData.name,
+                githubLink: formData.githubLink,
+                createdAt: formData.createdAt ? new Date(formData.createdAt) : undefined
+            };
+            const config = { withCredentials: true };
+            const res = await axios.post(`${serverEndpoint}/appProject/createProject`, body, config);
+            setProjects((prev) => [...prev, res.data]);
+            setFormData({ name: '', githubLink: '', createdAt: '' });
+            setMessage('Project added successfully!');
+            setErrors(null);
+        } catch (error) {
+            console.log("Error creating project:", error);
+            setErrors({ message: 'Failed to add project. Please try again.' });
+        }
     };
 
     const handleDeleteProject = async (id) => {
-        // TODO: call DELETE /api/projects/:id
-        setProjects((prev) => prev.filter((p) => p._id !== id));
+        try {
+            const config = { withCredentials: true, data: { id } };
+            await axios.delete(`${serverEndpoint}/appProject/deleteProject`, config);
+            setProjects((prev) => prev.filter((p) => p._id !== id));
+            setMessage('Project deleted successfully!');
+            setErrors(null);
+        } catch (error) {
+            console.log("Error deleting project:", error);
+            setErrors({ message: 'Failed to delete project. Please try again.' });
+        }
     };
 
     useEffect(() => {
@@ -46,6 +68,8 @@ const Projects = () => {
         <div className="min-vh-100 bg-light py-4">
             <div className="container">
                 <h1 className="display-6 fw-bold text-dark mb-4">Projects</h1>
+                {errors && <div className="alert alert-danger">{errors.message}</div>}
+                {message && <div className="alert alert-success">{message}</div>}
 
                 <div className="row g-4">
                     {/* Add Project Form */}
@@ -80,8 +104,19 @@ const Projects = () => {
                                             required
                                         />
                                     </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="createdAt" className="form-label fw-bold small">Date Created</label>
+                                        <input
+                                            type="date"
+                                            className="form-control"
+                                            id="createdAt"
+                                            name="createdAt"
+                                            value={formData.createdAt}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
                                     <button type="submit" className="btn btn-warning fw-bold w-100">
-                                        + Add Project
+                                         Add Project
                                     </button>
                                 </form>
                             </div>
@@ -119,7 +154,7 @@ const Projects = () => {
                                                                 View Repo
                                                             </a>
                                                         </td>
-                                                        <td className="text-secondary small">{project.createdAt}</td>
+                                                        <td className="text-secondary small">{new Date(project.createdAt).toLocaleDateString()}</td>
                                                         <td>
                                                             <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteProject(project._id)}>
                                                                 Delete

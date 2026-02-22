@@ -55,7 +55,7 @@ function UserHeader() {
                         </li>
                         <li className="nav-item">
                             <Link to="/team" className="nav-link text-secondary">
-                                Team
+                                Friends
                             </Link>
                         </li>
                     </ul>
@@ -85,6 +85,13 @@ function UserHeader() {
                                     <p className="mb-0 small fw-bold text-dark">Signed in as</p>
                                     <p className="mb-0 small text-muted">{userDetails?.email || userDetails?.name}</p>
                                 </li>
+                                
+                                <li>
+                                    <Link className="dropdown-item py-2 fw-bold" to="/change-password">
+                                        Change Password
+                                    </Link>
+                                </li>
+
                                 <li>
                                     <button className="dropdown-item py-2 text-danger fw-bold" onClick={() => handleLogout()}>
                                         Logout
