@@ -44,19 +44,39 @@ const JobTrackerHome = () => {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const fetchApplications = async () => {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const pageSizeOptions = [5, 10, 20, 50, 100];
+  const [sortBy, setSortBy] = useState('newest');
+
+  const fetchApplications = async (page = 1) => {
     try {
       const config = { withCredentials: true };
-      const res = await axios.get(`${serverEndpoint}/appProject/getApplications`, config);
-      setApplications(res.data);
+      const res = await axios.get(`${serverEndpoint}/appProject/getApplications?page=${page}&limit=${limit}&sortBy=${sortBy}`, config);
+      setApplications(res.data.applications);
+      setTotalPages(res.data.pagination?.totalPages || 1);
+      setCurrentPage(res.data.pagination?.currentPage || 1);
     } catch (error) {
       console.log("Error fetching applications:", error);
     }
   };
 
   useEffect(() => {
-    fetchApplications();
-  }, []);
+    fetchApplications(currentPage);
+  }, [currentPage, limit, sortBy]);
+
+  const handlePageSizeChange = (e) => {
+    setLimit(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   const resetForm = () => {
     setNewApplication({
@@ -90,11 +110,11 @@ const JobTrackerHome = () => {
       const config = { withCredentials: true };
       if (editingId) {
         const res = await axios.put(`${serverEndpoint}/appProject/updateApplication`, { id: editingId, ...body }, config);
-        setApplications((prev) => prev.map((app) => (app._id === editingId ? res.data : app)));
+        fetchApplications(1);
         setMessage('Application updated successfully!');
       } else {
         const res = await axios.post(`${serverEndpoint}/appProject/createApplication`, body, config);
-        setApplications((prev) => [...prev, res.data]);
+        fetchApplications(1);
         setMessage('Application added successfully!');
       }
       resetForm();
@@ -151,7 +171,16 @@ const JobTrackerHome = () => {
           {errors && <div className="alert alert-danger mb-0">{errors.message}</div>}
           {message && <div className="alert alert-success mb-0">{message}</div>}
 
-          <div className="d-flex gap-2">
+          <div className="d-flex align-items-center gap-2">
+            <label>Sort:</label>
+            <select
+              className="form-select form-select-sm rounded-pill me-2"
+              value={sortBy}
+              onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
             <button className="btn btn-warning fw-bold" onClick={handleNewApplication}>+ New Application</button>
           </div>
         </div>
@@ -286,6 +315,45 @@ const JobTrackerHome = () => {
                     })
                   )}
                 </div>
+
+                {totalPages >= 1 && (
+                  <nav className="mt-4 d-flex justify-content-center align-items-center flex-wrap gap-3">
+                    <ul className="pagination shadow-sm mb-0">
+                      <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                          &laquo;
+                        </button>
+                      </li>
+                      {[...Array(totalPages)].map((_, index) => (
+                        <li key={index} className={`page-item ${currentPage === (index + 1) ? "active" : ""}`}>
+                          <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                          &raquo;
+                        </button>
+                      </li>
+                    </ul>
+                    <div className="d-flex align-items-center gap-2">
+                      <label className="text-muted mb-0 small">Records per page:</label>
+                      <select
+                        className="form-select form-select-sm"
+                        style={{ width: 'auto' }}
+                        value={limit}
+                        onChange={handlePageSizeChange}
+                      >
+                        {pageSizeOptions.map((size) => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </nav>
+                )}
 
               </div>
             </div>
